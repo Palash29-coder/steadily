@@ -65,7 +65,9 @@ export function Provider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError("");
     try {
-      const { error: err } = await supabase!.rpc("initialize_workspace");
+      const { error: err } = await supabase!.rpc(
+        "steadily_initialize_workspace",
+      );
       if (err) throw err;
       const [d, p] = await Promise.all([fetchData(u.id), fetchProfile(u.id)]);
       if (e === epoch.current) {
@@ -210,7 +212,7 @@ export function Provider({ children }: { children: ReactNode }) {
     const saveEpoch = epoch.current;
     await operation(async () => {
       if (!demoRef.current) {
-        const { error } = await supabase!.from("profiles").upsert(p);
+        const { error } = await supabase!.from("steadily_profiles").upsert(p);
         if (error) throw error;
       }
       if (saveEpoch !== epoch.current) return;
@@ -236,13 +238,16 @@ export function Provider({ children }: { children: ReactNode }) {
         if (action === "pause") row.state = "paused";
         if (action === "finish") row.state = "finished";
       } else {
-        const { data: d, error } = await supabase!.rpc("timer_transition", {
-          timer_id: s.id,
-          action,
-          timer_kind: s.kind,
-          timer_label: s.label,
-          timer_notes: s.notes,
-        });
+        const { data: d, error } = await supabase!.rpc(
+          "steadily_timer_transition",
+          {
+            timer_id: s.id,
+            action,
+            timer_kind: s.kind,
+            timer_label: s.label,
+            timer_notes: s.notes,
+          },
+        );
         if (error) throw error;
         row = d;
       }

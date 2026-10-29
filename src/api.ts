@@ -14,12 +14,12 @@ const url = import.meta.env.VITE_SUPABASE_URL,
 export const supabase =
   url && key && !url.includes("YOUR_PROJECT") ? createClient(url, key) : null;
 export const tables = {
-  habits: "habits",
-  versions: "habit_versions",
-  records: "daily_records",
-  sessions: "sessions",
-  tasks: "tasks",
-  journals: "journals",
+  habits: "steadily_habits",
+  versions: "steadily_habit_versions",
+  records: "steadily_daily_records",
+  sessions: "steadily_sessions",
+  tasks: "steadily_tasks",
+  journals: "steadily_journals",
 } as const;
 export async function fetchData(user: string): Promise<Data> {
   const entries = await Promise.all(
@@ -43,7 +43,7 @@ export async function fetchData(user: string): Promise<Data> {
 }
 export async function fetchProfile(user: string): Promise<Profile> {
   const { data, error } = await supabase!
-    .from("profiles")
+    .from("steadily_profiles")
     .select("*")
     .eq("user_id", user)
     .single();

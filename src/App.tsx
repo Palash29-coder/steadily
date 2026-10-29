@@ -47,7 +47,7 @@ function Auth() {
           "Connect Supabase using the setup guide to enable private accounts. You can explore the separate demo below.",
         );
       const f = new FormData(e.currentTarget),
-        email = String(f.get("email") || ""),
+        email = String(f.get("email") || "").trim(),
         password = String(f.get("password") || "");
       if (update) {
         const { error } = await supabase.auth.updateUser({ password });
@@ -82,6 +82,22 @@ function Auth() {
     } catch (err) {
       setError((err as Error).message);
     } finally {
+      setBusy(false);
+    }
+  }
+  async function googleSignIn() {
+    if (!supabase) return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: location.origin + "/today" },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError((err as Error).message);
       setBusy(false);
     }
   }
@@ -150,6 +166,26 @@ function Auth() {
               setup. Explore the working demo below.
             </p>
           )}
+          {supabase && !update && mode !== "reset" && (
+            <>
+              <Button
+                variant="secondary full"
+                disabled={busy}
+                onClick={googleSignIn}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{ fontWeight: 700, color: "#4285f4", fontSize: 17 }}
+                >
+                  G
+                </span>
+                Continue with Google
+              </Button>
+              <div className="auth-divider">
+                <span>or use your email</span>
+              </div>
+            </>
+          )}
           <form onSubmit={submit}>
             {!update && (
               <Field label="Email address">
@@ -167,14 +203,18 @@ function Auth() {
                 <input
                   name="password"
                   type="password"
-                  minLength={8}
+                  minLength={mode === "signin" && !update ? undefined : 8}
                   required
                   autoComplete={
                     mode === "signup" || update
                       ? "new-password"
                       : "current-password"
                   }
-                  placeholder="At least 8 characters"
+                  placeholder={
+                    mode === "signin" && !update
+                      ? "Your password"
+                      : "At least 8 characters"
+                  }
                 />
               </Field>
             )}
