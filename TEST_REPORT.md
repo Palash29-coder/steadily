@@ -1,16 +1,16 @@
 # Verification report
 
-Completed locally on 29 October 2026 (Asia/Kolkata). No live deployment or Supabase project was configured.
+Completed locally on 29 October 2026 (Asia/Kolkata). The site is deployed on Netlify and an existing Supabase project is connected using isolated Steadily tables.
 
 ## Automated checks
 
 - Production build: TypeScript compilation and Vite production bundle pass.
-- **38 tests pass**: 29 calculation/behavior tests and 9 actual PostgreSQL migration/security tests.
+- **39 tests pass**: 29 calculation/behavior tests and 10 actual PostgreSQL migration/security tests.
 - Runtime production dependency audit: no known production vulnerabilities reported by `npm audit --omit=dev` at the time of testing.
 
 Calculation tests cover inclusive wake-window endpoints, explicit early-time policy, overnight windows, weekday/one-time/date-bound scheduling, archives, effective historical targets, week start, zero-habit days, occurrence-weighted percentages, future-date exclusion, unlogged/partial/success states, past corrections, current/longest streaks, skipped rest days, missed scheduled days, multiple study and meditation sessions, growth completion, skill session/minutes rules, task score isolation, paused/running timer recovery after serialization, manual corrections, timezone date assignment, midnight splitting, and DST 23/25-hour boundaries.
 
-Database tests execute the delivered migration in **PGlite (embedded PostgreSQL)**. The harness supplies an `auth.users` table, roles, and an `auth.uid()` function with two simulated JWT subjects. It verifies migration syntax/execution, exactly five idempotently seeded defaults, isolation across every private table, ownership-spoof rejection, cross-user habit foreign-key rejection, unauthorized update/delete behavior, anonymous access denial, daily-record uniqueness/upserts, atomic timer lifecycle, repeated start/finish safety, duplicate-active-timer rejection, cross-user timer protection, immutable past definitions, and prospective target versions.
+Database tests execute the delivered migration in **PGlite (embedded PostgreSQL)**. The harness supplies an `auth.users` table, roles, and an `auth.uid()` function with two simulated JWT subjects. It verifies preservation of the original app profiles table, migration syntax/execution, exactly five idempotently seeded defaults, isolation across every private table, ownership-spoof rejection, cross-user habit foreign-key rejection, unauthorized update/delete behavior, anonymous access denial, daily-record uniqueness/upserts, atomic timer lifecycle, repeated start/finish safety, duplicate-active-timer rejection, cross-user timer protection, immutable past definitions, and prospective target versions.
 
 This is database-level policy testing with simulated identities, not an end-to-end test of Supabase's hosted authentication or its network API. The optional `tests/isolation.mjs` exercises hosted sign-in, cross-user reads/writes, and sign-out/re-sign-in persistence when supplied two disposable confirmed accounts.
 
@@ -45,8 +45,8 @@ After configuring Supabase and Netlify, verify these before relying on the app f
 
 ## Limitations and explicit choices
 
-- **Not hosted.** A Supabase project, migration application, two public build-time values, auth email/redirect configuration, and a Netlify deployment are still required. No real credentials are included.
-- The included prebuilt `dist/` is a credential-free demo build. Rebuild with your environment configuration for real accounts.
+- Hosted on Netlify. The Steadily migration has been applied, public build-time values saved, and production auth redirects allowed. No privileged credentials are included.
+- Build with your own public Supabase environment configuration for real accounts. Do not commit `.env.local`.
 - No closed-site reminders, notification scheduler, push delivery, or offline write queue. Reminder preferences only show notes inside the app.
 - Data refreshes on sign-in, reload, and window focus; simultaneous devices do not receive live push updates while continuously focused. Concurrent edits to the same form use the last successful write. Timer transitions have stronger database locking/idempotency.
 - Habit creation and reorder involve sequential acknowledged writes. If a connection fails between creation steps, the management screen lets you finish the definition. If reordering is interrupted, reload and reorder again. These operations do not change daily record values.

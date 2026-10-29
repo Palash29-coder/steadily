@@ -9,7 +9,7 @@ A calm, responsive personal productivity app for habits, study, meditation, skil
 3. Open the local URL printed by Vite. Without credentials, use **Explore the demo**.
 4. For your own private workspace, complete the Supabase setup below. The demo uses a separate browser-only key and never populates a real account.
 
-The source is delivered alongside a ready-built `dist/` preview. The included build has no credentials and intentionally offers demo mode. Set your environment variables and **rebuild** to enable accounts and database persistence. Do not use the demo for records you need to keep across devices.
+The live deployment has Supabase configured. For a separate deployment, set your public environment values and rebuild to enable accounts and database persistence. Demo records remain browser-local.
 
 ## Supabase setup (required for real accounts)
 
@@ -30,7 +30,7 @@ Each table enforces `auth.uid() = user_id`. Habit child records also have an own
 
 ## Netlify deployment
 
-A Netlify account and a Supabase project are required. No Netlify deployment was performed during delivery.
+The current deployment is https://steadily-palash29.netlify.app/ with automatic publishing from the private GitHub repository. See DEPLOYMENT.md for connected-service details. These steps also support a new deployment.
 
 1. Put this folder's contents in your Git repository. Do not commit `.env.local` or `node_modules`.
 2. In Netlify, choose **Add new project → Import an existing project** and connect that repository.
@@ -54,7 +54,7 @@ A manual `dist/` upload can also work after setting local credentials and runnin
 - Tasks with descriptions, priorities, categories, dates, notes, daily/weekday recurrence, subtasks, completion/reopening per occurrence, editing, and confirmed permanent deletion.
 - Monthly calendar, past-day corrections, sessions and lesson details, and daily mood/reflection journal.
 - Weekly and monthly analytics, daily completion/study/meditation chart selectors, habit rates, occurrence totals, successful days, longest streak, matched elapsed-period comparison, and monthly heatmap and time-by-week charts.
-- Email signup/sign-in/sign-out/reset, persistent auth sessions, private database storage, loads after sign-in and refreshes when the window regains focus.
+- Google sign-in, email signup/sign-in/sign-out/reset, persistent auth sessions, private database storage, loads after sign-in and refreshes when the window regains focus.
 - Light/dark/system theme, timezone, week start, display name, habit-target editing, CSV/JSON exports, saving/saved/error feedback, and per-user form draft recovery within the browser tab.
 
 ## Scoring and history
@@ -132,3 +132,9 @@ For the optional live test, create **two disposable, confirmed** Supabase test u
 [Supabase password recovery](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail), [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Vite setup](https://vite.dev/guide/).
 
 See `TEST_REPORT.md` for completed verification and the remaining live-service acceptance checklist.
+
+## Shared Supabase project setup
+
+Steadily uses the existing Supabase project with a separate `steadily_` prefix on all tables, indexes, and application functions. The existing study app's `public.profiles` and other tables remain separate. The API maps its logical records to `steadily_profiles`, `steadily_habits`, `steadily_habit_versions`, `steadily_daily_records`, `steadily_sessions`, `steadily_tasks`, and `steadily_journals`. Initialization and timer RPCs are `steadily_initialize_workspace` and `steadily_timer_transition`.
+
+Authentication is shared at the Supabase-project level. Existing account credentials work across apps using this project, while Steadily's RLS-protected records stay in its own tables. Keep the existing Site URL and redirect allowlist. Add Steadily's `/today` and `/reset-password` URLs to that allowlist; the app explicitly requests its own return URLs.
